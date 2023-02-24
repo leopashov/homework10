@@ -2,11 +2,11 @@
 pragma solidity 0.8.19;
 
 contract GasContract {
-    uint16 public totalSupply;
     mapping(address => uint16) private balances;
     mapping(address => Payment[]) private payments;
     mapping(address => uint8) public whitelist;
     address[5] public administrators;
+    uint16 public totalSupply;
 
     event Transfer(address recipient, uint16 amount);
 
