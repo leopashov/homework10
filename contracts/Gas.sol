@@ -21,7 +21,7 @@ contract GasContract {
         uint16 amount;
     }
 
-    constructor(address[5] memory _admins, uint16 _totalSupply) {
+    constructor(address[5] memory _admins, uint16 _totalSupply) payable {
         administrators = _admins;
         totalSupply = _totalSupply;
 
