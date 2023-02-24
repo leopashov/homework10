@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.0;
+pragma solidity 0.8.19;
 
 contract GasContract {
     uint16 public totalSupply;
@@ -57,11 +57,9 @@ contract GasContract {
         payments[_user][0].paymentType = 3;
     }
 
-    function getPayments(address _user)
-        external
-        view
-        returns (Payment[] memory payments_)
-    {
+    function getPayments(
+        address _user
+    ) external view returns (Payment[] memory payments_) {
         return payments[_user];
     }
 
