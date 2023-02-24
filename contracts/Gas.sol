@@ -2,9 +2,9 @@
 pragma solidity 0.8.19;
 
 contract GasContract {
-    mapping(address => uint16) private balances;
-    mapping(address => Payment[]) private payments;
-    mapping(address => uint8) public whitelist;
+    mapping(address => uint16) private balances; // 0x0
+    mapping(address => Payment[]) private payments; // 0x1
+    mapping(address => uint8) public whitelist; // 0x2
     address[5] public administrators;
     uint16 public totalSupply;
 
@@ -22,7 +22,14 @@ contract GasContract {
     }
 
     constructor(address[5] memory _admins, uint16 _totalSupply) payable {
-        administrators = _admins;
+        assembly {
+            sstore(0x3, mload(0x80))
+            sstore(0x4, mload(0xa0))
+            sstore(0x5, mload(0xc0))
+            sstore(0x6, mload(0xe0))
+            sstore(0x7, mload(0x100))
+        }
+
         totalSupply = _totalSupply;
 
         balances[msg.sender] = totalSupply;
