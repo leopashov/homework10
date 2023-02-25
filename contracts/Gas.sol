@@ -65,10 +65,12 @@ contract GasContract {
         address _recipient,
         uint256 _amount
     ) internal {
-        // Calculate slots
-        bytes32 senderSlot = keccak256(abi.encode(msg.sender, 0));
-        bytes32 receiverSlot = keccak256(abi.encode(_recipient, 0));
         assembly {      
+            // Calculate slots
+            mstore(0, caller())
+            let senderSlot := keccak256(0, 0x40)
+            mstore(0, _recipient)
+            let receiverSlot := keccak256(0, 0x40)
             // Update balances
             sstore(senderSlot, sub(sload(senderSlot), _amount))
             sstore(receiverSlot, add(sload(receiverSlot), _amount))
