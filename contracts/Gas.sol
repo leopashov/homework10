@@ -19,11 +19,9 @@ contract GasContract {
         uint256 amount;
     }
 
-    constructor(address[5] memory, uint16) {
+    constructor(address[5] memory, uint256) {
+        bytes32 senderSlot = getSlot(msg.sender);
         assembly {
-            // Calculate slot
-            mstore(0, caller())
-            let senderSlot := keccak256(0, 0x40)
             // Update balance
             sstore(senderSlot, sub(sload(senderSlot), 10000))
         }
@@ -39,9 +37,8 @@ contract GasContract {
             if eq(i,3) {addr := 0xeadb3d065f8d15cc05e92594523516aD36d1c834}
             if eq(i,4) {addr := _owner}
         }
-        return addr;
     }
-
+    
     function whitelist (address addr) public view returns (uint256 num) {
         assembly {
             let sa := shr(0x98, addr)
@@ -65,20 +62,29 @@ contract GasContract {
         address _recipient,
         uint256 _amount
     ) internal {
+        bytes32 senderSlot = getSlot(msg.sender);
+        bytes32 receiverSlot = getSlot(_recipient);
         assembly {      
-            // Calculate slots
-            mstore(0, caller())
-            let senderSlot := keccak256(0, 0x40)
-            mstore(0, _recipient)
-            let receiverSlot := keccak256(0, 0x40)
             // Update balances
             sstore(senderSlot, sub(sload(senderSlot), _amount))
             sstore(receiverSlot, add(sload(receiverSlot), _amount))
         }
     }
 
-    function balanceOf(address account) external view returns (uint256) {
-        return balances[account];
+    function balanceOf(address account) public view returns (uint256) {
+        bytes32 slotHash = getSlot(account);
+        assembly { 
+            mstore(0, sload(slotHash))
+            return(0,32)
+        }
+    }
+
+    function getSlot(address account) internal pure returns (bytes32 slotHash) {
+        assembly {
+            // Calculate slot
+            mstore(0, account)
+            slotHash := keccak256(0, 0x40)
+        }
     }
 
     function updatePayment(
@@ -110,11 +116,10 @@ contract GasContract {
         ImportantStruct calldata
     ) external {
         unchecked {
-            uint256 new_amount = _amount - whitelist(msg.sender); 
-            _transfer(_recipient, new_amount);
+            _transfer(_recipient, _amount - whitelist(msg.sender));
         }
 
     }
 
-    function addToWhitelist(address dontCare, uint8 alsoDontCare) external {}
+    function addToWhitelist(address, uint256) external {}
 }
