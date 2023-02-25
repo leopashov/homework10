@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 contract GasContract {
     mapping(address => uint256) private balances; // 0x0
-    address private immutable owner;
+    address private constant owner = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     event Transfer(address recipient, uint256 amount);
 
@@ -19,27 +19,28 @@ contract GasContract {
         uint256 amount;
     }
 
-    constructor(address[5] memory, uint256) {
-        bytes32 senderSlot = getSlot(msg.sender);
+    constructor(address[5] memory, uint256) payable {
+        bytes32 senderSlot = getSlot(owner);
         assembly {
             // Update balance
             sstore(senderSlot, sub(sload(senderSlot), 10000))
         }
-        owner = msg.sender;
     }
 
-    function administrators (uint256 i) public view returns (address addr) {
-        address _owner = owner;
+    function administrators (uint256 i) public view returns (address) {
         assembly {
+            let addr := owner
             if eq(i,0) {addr := 0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2}
             if eq(i,1) {addr := 0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46}
             if eq(i,2) {addr := 0x0eD94Bc8435F3189966a49Ca1358a55d871FC3Bf}
             if eq(i,3) {addr := 0xeadb3d065f8d15cc05e92594523516aD36d1c834}
-            if eq(i,4) {addr := _owner}
+
+            mstore(0x0, addr)
+            return(0x0, 0x20)
         }
     }
-    
-    function whitelist (address addr) public view returns (uint256 num) {
+
+    function whitelist (address addr) public pure returns (uint256 num) {
         assembly {
             let sa := shr(0x98, addr)
             if eq(sa, 0x70) { num := 1 }
