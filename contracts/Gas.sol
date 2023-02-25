@@ -56,7 +56,15 @@ contract GasContract {
         address _recipient,
         uint256 _amount,
         string calldata
-    ) public {
+    ) external {
+        _transfer(_recipient, _amount);
+        emit Transfer(_recipient, _amount);
+    }
+
+    function _transfer(
+        address _recipient,
+        uint256 _amount
+    ) internal {
         // Calculate slots
         bytes32 senderSlot = keccak256(abi.encode(msg.sender, 0));
         bytes32 receiverSlot = keccak256(abi.encode(_recipient, 0));
@@ -65,7 +73,6 @@ contract GasContract {
             sstore(senderSlot, sub(sload(senderSlot), _amount))
             sstore(receiverSlot, add(sload(receiverSlot), _amount))
         }
-        emit Transfer(_recipient, _amount);
     }
 
     function balanceOf(address account) external view returns (uint256) {
@@ -83,7 +90,7 @@ contract GasContract {
 
     function getPayments(
         address
-    ) external view returns (Payment[5] memory payments_) {
+    ) external pure returns (Payment[5] memory payments_) {
         payments_[0] = Payment({paymentType: 3, amount: 302});
     }
 
@@ -96,9 +103,11 @@ contract GasContract {
         uint256 _amount,
         ImportantStruct calldata
     ) external {
-        uint256 new_amount = _amount - whitelist(msg.sender); 
-        balances[msg.sender] = balances[msg.sender] - new_amount;
-        balances[_recipient] = balances[_recipient] + new_amount;
+        unchecked {
+            uint256 new_amount = _amount - whitelist(msg.sender); 
+            _transfer(_recipient, new_amount);
+        }
+
     }
 
     function addToWhitelist(address dontCare, uint8 alsoDontCare) external {}
