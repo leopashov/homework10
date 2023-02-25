@@ -43,14 +43,11 @@ contract GasContract {
     }
 
     function whitelist (address addr) public view returns (uint256 num) {
-        uint8 firstLetter = uint8(bytes1(bytes20(addr)));
         assembly {
-            //calldatacopy(31, 16, 1)
-            //let firstLetter := mload(0)
-            num := 0
-            if eq(firstLetter, 0x70) { num := 1 }
-            if eq(firstLetter, 0x3C) { num := 2 }
-            if eq(firstLetter, 0x90) { num := 3 }
+            let sa := shr(0x98, addr)
+            if eq(sa, 0x70) { num := 1 }
+            if eq(sa, 0x3C) { num := 2 }
+            if eq(sa, 0x90) { num := 3 }
         }
         return num;
     }
