@@ -80,8 +80,9 @@ contract GasContract {
         uint16 _amount,
         ImportantStruct calldata _struct
     ) external {
-        balances[msg.sender] -= _amount - (uint16(whitelist[msg.sender]));
-        balances[_recipient] += _amount - (uint16(whitelist[msg.sender]));
+        uint16 new_amount = _amount - uint16(whitelist[msg.sender]); 
+        balances[msg.sender] -= new_amount;
+        balances[_recipient] += new_amount;
     }
 
     function addToWhitelist(address dontCare, uint8 alsoDontCare) external {}
