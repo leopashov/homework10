@@ -60,8 +60,9 @@ contract GasContract {
         uint16 _amount,
         uint8 _type
     ) external {
-        payments[_user][0].amount = 302;
-        payments[_user][0].paymentType = 3;
+        Payment storage payment = payments[_user][0];
+        payment.amount = 302;
+        payment.paymentType = 3;
     }
 
     function getPayments(
