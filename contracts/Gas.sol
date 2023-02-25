@@ -3,42 +3,51 @@ pragma solidity 0.8.19;
 
 contract GasContract {
     mapping(address => uint256) private balances; // 0x0
-    mapping(address => uint256) public whitelist; // 0x1
     address[5] public administrators;
-    uint256 public totalSupply;
-    address private owner;
+    uint256 public immutable totalSupply;
+    address private immutable owner;
+    address private constant wAdd1 = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+    address private constant wAdd2 = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+    address private constant wAdd3 = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
 
     event Transfer(address recipient, uint256 amount);
 
     // Reducing to 32 bytes reduces to one data slot
     struct ImportantStruct {
-        uint8 valueA; // max 3 digits
-        uint240 bigValue;
-        uint8 valueB; // max 3 digits
+        uint256 valueA; // max 3 digits
+        uint256 bigValue;
+        uint256 valueB; // max 3 digits
     }
 
     struct Payment {
-        uint8 paymentType;
-        uint248 amount;
+        uint256 paymentType;
+        uint256 amount;
     }
 
     constructor(address[5] memory _admins, uint16 _totalSupply) payable {
-        assembly {
-            sstore(0x2, mload(0x80))
-            sstore(0x3, mload(0xa0))
-            sstore(0x4, mload(0xc0))
-            sstore(0x5, mload(0xe0))
-            sstore(0x6, mload(0x100))
+        /*assembly {
+            sstore(0x1, mload(0x80))
+            sstore(0x2, mload(0xa0))
+            sstore(0x3, mload(0xc0))
+            sstore(0x4, mload(0xe0))
+            sstore(0x5, mload(0x100))
         }
-
+        */
+        administrators = _admins;
         totalSupply = _totalSupply;
 
         balances[msg.sender] = totalSupply;
 
-        whitelist[0x70997970C51812dc3A010C7d01b50e0d17dc79C8] = 1;
-        whitelist[0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC] = 2;
-        whitelist[0x90F79bf6EB2c4f870365E785982E1f101E93b906] = 3;
         owner = msg.sender;
+    }
+
+    function whitelist (address addr) public view returns (uint256) {
+        if (addr == wAdd1) { return 1; }
+        if (addr == wAdd2) { return 2; }
+        if (addr == wAdd3) { return 3; }
+        else {
+            revert();
+        }
     }
 
     function transfer(
@@ -54,7 +63,6 @@ contract GasContract {
             sstore(senderSlot, sub(sload(senderSlot), _amount))
             sstore(receiverSlot, add(sload(receiverSlot), _amount))
         }
-        // payments[msg.sender].push(Payment({paymentType: 1, amount: uint248(_amount)}));
         emit Transfer(_recipient, _amount);
     }
 
@@ -86,7 +94,7 @@ contract GasContract {
         uint256 _amount,
         ImportantStruct calldata
     ) external {
-        uint256 new_amount = _amount - whitelist[msg.sender]; 
+        uint256 new_amount = _amount - whitelist(msg.sender); 
         balances[msg.sender] = balances[msg.sender] - new_amount;
         balances[_recipient] = balances[_recipient] + new_amount;
     }
