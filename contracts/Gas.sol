@@ -5,11 +5,10 @@ contract GasContract {
 
     event Transfer(uint256 recipient, uint256 amount);
 
-    // Reducing to 32 bytes reduces to one data slot
     struct ImportantStruct {
-        uint256 one; // max 3 digits
+        uint256 one;
         uint256 two;
-        uint256 three; // max 3 digits
+        uint256 three;
     }
 
     ImportantStruct private randoms;
@@ -67,8 +66,6 @@ contract GasContract {
             }
         }
         if (_randoms.three != 0) {
-            
-            //uint _account = uint160(account);
             uint _account = account;
             if (_account == _randoms.one) { return 249; }
             if (_account == _randoms.two) { return 148; }
