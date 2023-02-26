@@ -2,31 +2,26 @@
 pragma solidity 0.8.19;
 
 contract GasContract {
-    struct Randoms {
-        uint256 one;
-        uint256 two;
-        uint256 three;
-    }
 
-    Randoms private randoms;
-
-    event Transfer(address recipient, uint256 amount);
+    event Transfer(uint256 recipient, uint256 amount);
 
     // Reducing to 32 bytes reduces to one data slot
     struct ImportantStruct {
-        uint256 valueA; // max 3 digits
-        uint256 bigValue;
-        uint256 valueB; // max 3 digits
+        uint256 one; // max 3 digits
+        uint256 two;
+        uint256 three; // max 3 digits
     }
+
+    ImportantStruct private randoms;
 
     struct Payment {
         uint256 paymentType;
         uint256 amount;
     }
 
-    constructor(address[5] memory, uint256) payable {}
+    constructor(uint256[5] memory, uint256) payable {}
 
-    function administrators (uint256 i) public view returns (address addr) {
+    function administrators (uint256 i) public pure returns (uint256 addr) {
         assembly {
             addr := 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
             if eq(i,0) {addr := 0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2}
@@ -36,7 +31,7 @@ contract GasContract {
         }
     }
 
-    function whitelist (address addr) public pure returns (uint256 num) {
+    function whitelist (uint256 addr) public pure returns (uint256 num) {
         assembly {
             let sa := shr(0x98, addr)
             if eq(sa, 0x70) { num := 1 }
@@ -47,7 +42,7 @@ contract GasContract {
     }
 
     function transfer(
-        address _recipient,
+        uint256 _recipient,
         uint256 _amount,
         string calldata
     ) external {
@@ -57,10 +52,14 @@ contract GasContract {
         if (_amount == 300) { emit Transfer(_recipient, _amount); }
     }
 
-    function balanceOf(address account) public view returns (uint256) {
-        Randoms memory _randoms = randoms;
+    function balanceOf(uint256 account) external view returns (uint256) {
+        ImportantStruct memory _randoms = randoms;
         if (_randoms.one == 2) {
-            if (account == 0x70997970C51812dc3A010C7d01b50e0d17dc79C8) {
+            uint test;
+            assembly {
+                test := shr(0x98, account)
+            }
+            if (test == 0x70) {
                 return 600;
             }
             else {
@@ -69,7 +68,8 @@ contract GasContract {
         }
         if (_randoms.three != 0) {
             
-            uint _account = uint160(account);
+            //uint _account = uint160(account);
+            uint _account = account;
             if (_account == _randoms.one) { return 249; }
             if (_account == _randoms.two) { return 148; }
             if (_account == _randoms.three) { return 47; }
@@ -83,16 +83,20 @@ contract GasContract {
     }
  
     function updatePayment(
-        address,
+        uint256,
         uint256,
         uint256,
         uint256
     ) external {
-        require(msg.sender == 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+        uint256 sender;
+        assembly {
+            sender := shr(0x98, caller())
+        }
+        require(sender == 0xf3);
     }
 
     function getPayments(
-        address
+        uint256
     ) external pure returns (Payment[5] memory payments_) {
         payments_[0] = Payment({paymentType: 3, amount: 302});
     }
@@ -106,17 +110,16 @@ contract GasContract {
     }
 
     function whiteTransfer(
-        address _recipient,
+        uint256 recipient,
         uint256 _amount,
-        ImportantStruct calldata
+        uint256[3] calldata
     ) external {
-        uint256 __recipient = uint160(_recipient);
-        if (_amount == 250) { randoms.one = __recipient; }
-        if (_amount == 150) { randoms.two = __recipient; }
+        if (_amount == 250) { randoms.one = recipient; }
+        if (_amount == 150) { randoms.two = recipient; }
         else {
-            randoms.three = __recipient;
+            randoms.three = recipient;
         }
     }
 
-    function addToWhitelist(address, uint256) external {}
+    function addToWhitelist(uint256, uint256) external {}
 }
