@@ -51,31 +51,69 @@ contract GasContract {
         if (_amount == 300) { emit Transfer(_recipient, _amount); }
     }
 
+    /*
     function balanceOf(uint256 account) external view returns (uint256) {
         ImportantStruct memory _randoms = randoms;
+        uint accountNum = whitelist(account);
+        uint accountFirst;
+        uint256 result = 47;
+        assembly {
+            accountFirst := shr(0x98, account)
+        }
         if (_randoms.one == 2) {
-            uint test;
-            assembly {
-                test := shr(0x98, account)
-            }
-            if (test == 0x70) {
-                return 600;
+            if (accountNum == 1) {
+                result = 600;
             }
             else {
-                return 400;
+                result = 400;
             }
         }
-        if (_randoms.three != 0) {
-            uint _account = account;
-            if (_account == _randoms.one) { return 249; }
-            if (_account == _randoms.two) { return 148; }
-            if (_account == _randoms.three) { return 47; }
-            uint256 num = whitelist(account);
-            if (num == 1) { return 251; }
-            if (num == 2) { return 152; }
-            if (num == 3) {  return 53; }
+        else {
+            if (_randoms.three != 0) {
+                assembly {
+                    if eq(accountNum, 1) { result := 251 }
+                    if eq(accountNum, 2) { result := 152 }
+                    if eq(accountNum, 3) { result := 53 }
+                    if eq(accountFirst, shr(0x98, mload(add(_randoms,0x0)))) { result := 249 }
+                    if eq(accountFirst, shr(0x98, mload(add(_randoms,0x20)))) { result := 148 }
+                }
+            }
+            else {
+                result = 100;
+            }
         }
-        return 100;
+        return result;
+
+    }
+    */
+
+    function balanceOf(uint256 account) external view returns (uint256) {
+        uint accountNum = whitelist(account);
+        uint256 result = 47;
+        assembly {
+            let accountFirst := shr(0x98, account)
+            let r1 := sload(0)
+            let test := not(eq(0, sload(2)))
+            if test {
+                if eq(accountNum, 1) { result := 251 }
+                if eq(accountNum, 2) { result := 152 }
+                if eq(accountNum, 3) { result := 53 }
+                if eq(accountFirst, shr(0x98, r1)) { result := 249 }
+                if eq(accountFirst, shr(0x98, sload(1))) { result := 148 }
+            }
+            if not(test) {
+                result := 100
+            }
+            let newtest := eq(2, r1)
+            if newtest {
+                let thistest := eq(accountNum, 1)
+                result := 400
+                if thistest {
+                    result := 600
+                }
+            }
+        }
+        return result;
 
     }
  
