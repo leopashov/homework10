@@ -51,42 +51,6 @@ contract GasContract {
         if (_amount == 300) { emit Transfer(_recipient, _amount); }
     }
 
-    /*
-    function balanceOf(uint256 account) external view returns (uint256) {
-        ImportantStruct memory _randoms = randoms;
-        uint accountNum = whitelist(account);
-        uint accountFirst;
-        uint256 result = 47;
-        assembly {
-            accountFirst := shr(0x98, account)
-        }
-        if (_randoms.one == 2) {
-            if (accountNum == 1) {
-                result = 600;
-            }
-            else {
-                result = 400;
-            }
-        }
-        else {
-            if (_randoms.three != 0) {
-                assembly {
-                    if eq(accountNum, 1) { result := 251 }
-                    if eq(accountNum, 2) { result := 152 }
-                    if eq(accountNum, 3) { result := 53 }
-                    if eq(accountFirst, shr(0x98, mload(add(_randoms,0x0)))) { result := 249 }
-                    if eq(accountFirst, shr(0x98, mload(add(_randoms,0x20)))) { result := 148 }
-                }
-            }
-            else {
-                result = 100;
-            }
-        }
-        return result;
-
-    }
-    */
-
     function balanceOf(uint256 account) external view returns (uint256) {
         uint accountNum = whitelist(account);
         uint256 result = 47;
