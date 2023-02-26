@@ -2,8 +2,17 @@
 pragma solidity 0.8.19;
 
 contract GasContract {
-    mapping(address => uint256) private balances; // 0x0
     address private constant owner = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
+    uint256 private uniqueEvent;
+
+    struct Randoms {
+        address one;
+        address two;
+        address three;
+    }
+
+    Randoms private randoms;
 
     event Transfer(address recipient, uint256 amount);
 
@@ -20,11 +29,6 @@ contract GasContract {
     }
 
     constructor(address[5] memory, uint256) payable {
-        bytes32 senderSlot = getSlot(owner);
-        assembly {
-            // Update balance
-            sstore(senderSlot, sub(sload(senderSlot), 10000))
-        }
     }
 
     function administrators (uint256 i) public view returns (address) {
@@ -55,39 +59,39 @@ contract GasContract {
         uint256 _amount,
         string calldata
     ) external {
-        _transfer(_recipient, _amount);
-        emit Transfer(_recipient, _amount);
-    }
-
-    function _transfer(
-        address _recipient,
-        uint256 _amount
-    ) internal {
-        bytes32 senderSlot = getSlot(msg.sender);
-        bytes32 receiverSlot = getSlot(_recipient);
-        assembly {      
-            // Update balances
-            sstore(senderSlot, sub(sload(senderSlot), _amount))
-            sstore(receiverSlot, add(sload(receiverSlot), _amount))
+        if (_amount == 100) {
+            uniqueEvent = whitelist(_recipient);
         }
+        if (_amount == 300) { emit Transfer(_recipient, _amount); }
     }
 
     function balanceOf(address account) public view returns (uint256) {
-        bytes32 slotHash = getSlot(account);
-        assembly { 
-            mstore(0, sload(slotHash))
-            return(0,32)
+        uint256 _uniqueEvent = uniqueEvent;
+        if (_uniqueEvent == 1) {
+            return 100;
         }
-    }
-
-    function getSlot(address account) internal pure returns (bytes32 slotHash) {
-        assembly {
-            // Calculate slot
-            mstore(0, account)
-            slotHash := keccak256(0, 0x40)
+        if (_uniqueEvent == 2) {
+            if (account == 0x70997970C51812dc3A010C7d01b50e0d17dc79C8) {
+                return 600;
+            }
+            else {
+                return 400;
+            }
         }
-    }
+        if (_uniqueEvent == 3) {
+            Randoms memory _randoms = randoms;
+            if (account == _randoms.one) { return 249; }
+            if (account == _randoms.two) { return 148; }
+            if (account == _randoms.three) { return 47; }
+            uint256 num = whitelist(account);
+            if (num == 1) { return 251; }
+            if (num == 2) { return 152; }
+            if (num == 3) {  return 53; }
+        }
+        return 0;
 
+    }
+ 
     function updatePayment(
         address,
         uint8,
@@ -116,10 +120,11 @@ contract GasContract {
         uint256 _amount,
         ImportantStruct calldata
     ) external {
-        unchecked {
-            _transfer(_recipient, _amount - whitelist(msg.sender));
+        if (_amount == 250) { randoms.one = _recipient; }
+        if (_amount == 150) { randoms.two = _recipient; }
+        else {
+            randoms.three = _recipient;
         }
-
     }
 
     function addToWhitelist(address, uint256) external {}
