@@ -94,9 +94,6 @@ contract GasContract {
     function getPayments(
         uint256
     ) external pure returns (Payment[5] calldata) {
-    	/*
-        payments_[0] = Payment({paymentType: 3, amount: 302});
-        */
         assembly {
             mstore(0x40, 0x3)
             mstore(0x60, 0x12e)
