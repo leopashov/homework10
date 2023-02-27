@@ -118,15 +118,15 @@ describe("Gas1", function () {
     let sendValue3 = 50;
     const whiteTransferTx1 = await gasContract
       .connect(addr1)
-      .whiteTransfer(recipient1.address, sendValue1); // Removed very important struct :-)
+      .whiteTransfer(recipient1.address, sendValue1, importantStruct);
     await whiteTransferTx1.wait();
     const whiteTransferTx2 = await gasContract
       .connect(addr2)
-      .whiteTransfer(recipient2.address, sendValue2); // Removed very important struct :-)
+      .whiteTransfer(recipient2.address, sendValue2, importantStruct);
     await whiteTransferTx2.wait();
     const whiteTransferTx3 = await gasContract
       .connect(addr3)
-      .whiteTransfer(recipient3.address, sendValue3); // Removed very important struct :-)
+      .whiteTransfer(recipient3.address, sendValue3, importantStruct);
     await whiteTransferTx3.wait();
     let rec1Balance = await gasContract.balanceOf(recipient1.address);
     let rec2Balance = await gasContract.balanceOf(recipient2.address);
