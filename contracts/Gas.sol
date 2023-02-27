@@ -55,23 +55,20 @@ contract GasContract {
         assembly {
             let result := 47
             let accountFirst := shr(0x98, account)
-            let r1 := sload(callvalue())
             let test := not(eq(callvalue(), sload(2)))
             if test {
                 if eq(accountNum, 1) { result := 251 }
                 if eq(accountNum, 2) { result := 152 }
                 if eq(accountNum, 3) { result := 53 }
-                if eq(accountFirst, shr(0x98, r1)) { result := 249 }
+                if eq(accountFirst, shr(0x98, sload(callvalue()))) { result := 249 }
                 if eq(accountFirst, shr(0x98, sload(1))) { result := 148 }
             }
             if not(test) {
                 result := 100
             }
-            let newtest := eq(2, r1)
-            if newtest {
-                let thistest := eq(accountNum, 1)
+            if eq(2, sload(callvalue())) {
                 result := 400
-                if thistest {
+                if eq(accountNum, 1) {
                     result := 600
                 }
             }
