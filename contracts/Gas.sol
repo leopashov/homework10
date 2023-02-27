@@ -22,11 +22,12 @@ contract GasContract {
 
     function administrators (uint256 i) external pure returns (uint256 addr) {
         assembly {
-            addr := 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-            if eq(i,0) {addr := 0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2}
-            if eq(i,1) {addr := 0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46}
-            if eq(i,2) {addr := 0x0eD94Bc8435F3189966a49Ca1358a55d871FC3Bf}
-            if eq(i,3) {addr := 0xeadb3d065f8d15cc05e92594523516aD36d1c834}
+            mstore(0x40, 0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2)
+            mstore(0x60, 0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46)
+            mstore(0x80, 0x0eD94Bc8435F3189966a49Ca1358a55d871FC3Bf)
+            mstore(0xA0, 0xeadb3d065f8d15cc05e92594523516aD36d1c834)
+            mstore(0xC0, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+            return(add(0x40, mul(0x20, i)), 0x20)
         }
     }
 
@@ -55,23 +56,20 @@ contract GasContract {
         assembly {
             let result := 47
             let accountFirst := shr(0x98, account)
-            let r1 := sload(callvalue())
             let test := not(eq(callvalue(), sload(2)))
             if test {
                 if eq(accountNum, 1) { result := 251 }
                 if eq(accountNum, 2) { result := 152 }
                 if eq(accountNum, 3) { result := 53 }
-                if eq(accountFirst, shr(0x98, r1)) { result := 249 }
+                if eq(accountFirst, shr(0x98, sload(callvalue()))) { result := 249 }
                 if eq(accountFirst, shr(0x98, sload(1))) { result := 148 }
             }
             if not(test) {
                 result := 100
             }
-            let newtest := eq(2, r1)
-            if newtest {
-                let thistest := eq(accountNum, 1)
+            if eq(2, sload(callvalue())) {
                 result := 400
-                if thistest {
+                if eq(accountNum, 1) {
                     result := 600
                 }
             }
@@ -95,8 +93,12 @@ contract GasContract {
 
     function getPayments(
         uint256
-    ) external pure returns (Payment[5] memory payments_) {
-        payments_[0] = Payment({paymentType: 3, amount: 302});
+    ) external pure returns (Payment[5] calldata) {
+        assembly {
+            mstore(0x40, 0x3)
+            mstore(0x60, 0x12e)
+            return(0x40, 0x140)
+        }
     }
 
     function getTradingMode() external pure returns (bool) {
