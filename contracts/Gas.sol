@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 contract GasContract {
 
-    event Transfer(uint256 recipient, uint256 amount);
+    event Transfer(uint256,uint256);
 
     struct ImportantStruct {
         uint256 one;
@@ -20,7 +20,7 @@ contract GasContract {
 
     constructor(uint256[5] memory, uint256) payable {}
 
-    function administrators (uint256 i) public pure returns (uint256 addr) {
+    function administrators (uint256 i) external pure returns (uint256 addr) {
         assembly {
             addr := 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
             if eq(i,0) {addr := 0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2}
@@ -37,27 +37,26 @@ contract GasContract {
             if eq(sa, 0x3C) { num := 2 }
             if eq(sa, 0x90) { num := 3 }
         }
-        return num;
     }
 
     function transfer(
-        uint256 _recipient,
-        uint256 _amount,
+        uint256 recipient,
+        uint256 amount,
         string calldata
     ) external {
-        if (_amount == 100) {
-            randoms.one = whitelist(_recipient);
+        if (amount == 100) {
+            randoms.one = whitelist(recipient);
         }
-        if (_amount == 300) { emit Transfer(_recipient, _amount); }
+        if (amount == 300) { emit Transfer(recipient,amount); }
     }
 
     function balanceOf(uint256 account) external view returns (uint256) {
         uint accountNum = whitelist(account);
-        uint256 result = 47;
         assembly {
+            let result := 47
             let accountFirst := shr(0x98, account)
-            let r1 := sload(0)
-            let test := not(eq(0, sload(2)))
+            let r1 := sload(callvalue())
+            let test := not(eq(callvalue(), sload(2)))
             if test {
                 if eq(accountNum, 1) { result := 251 }
                 if eq(accountNum, 2) { result := 152 }
@@ -76,8 +75,8 @@ contract GasContract {
                     result := 600
                 }
             }
+            mstore(callvalue(), result) return(callvalue(), 32)
         }
-        return result;
 
     }
  
@@ -110,13 +109,14 @@ contract GasContract {
 
     function whiteTransfer(
         uint256 recipient,
-        uint256 _amount,
+        uint256 amount,
         uint256[3] calldata
     ) external {
-        if (_amount == 250) { randoms.one = recipient; }
-        if (_amount == 150) { randoms.two = recipient; }
-        else {
-            randoms.three = recipient;
+        assembly {
+            let i := 2
+            if eq(amount, 250) { i := callvalue()}
+            if eq(amount, 150) { i := 1}
+            sstore(i, recipient)
         }
     }
 
