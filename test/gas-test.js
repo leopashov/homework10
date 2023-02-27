@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, huffDeployer } = require("hardhat");
 
 describe("Gas1", function () {
   let gasContract;
@@ -9,16 +9,17 @@ describe("Gas1", function () {
   beforeEach(async function () {
     [owner, addr1, addr2, addr3] = await ethers.getSigners();
 
-    const Gas1 = await ethers.getContractFactory("GasContract");
+    // const Gas1 = await ethers.getContractFactory("GasContract");
     let admins = [
-      "0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2",
-      "0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46",
-      "0x0eD94Bc8435F3189966a49Ca1358a55d871FC3Bf",
-      "0xeadb3d065f8d15cc05e92594523516aD36d1c834",
-      owner.address,
+      // "0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2",
+      // "0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46",
+      // "0x0eD94Bc8435F3189966a49Ca1358a55d871FC3Bf",
+      // "0xeadb3d065f8d15cc05e92594523516aD36d1c834",
+      // owner.address,
     ];
-    gasContract = await Gas1.deploy(admins, 10000);
+    gasContract = await huffDeployer.deploy("Gas", [admins, 10000]);
     await gasContract.deployed();
+    gasContract = await ethers.getContractAt("IGasCorrect", gasContract.address);
   });
   it("Check that admins have been added", async function () {
     expect(await gasContract.administrators(0)).to.equal(
