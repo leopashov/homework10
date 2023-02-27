@@ -109,8 +109,7 @@ contract GasContract {
 
     function whiteTransfer(
         uint256 recipient,
-        uint256 amount,
-        uint256[3] calldata
+        uint256 amount
     ) external {
         assembly {
             let i := 2
