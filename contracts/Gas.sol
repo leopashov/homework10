@@ -22,11 +22,12 @@ contract GasContract {
 
     function administrators (uint256 i) external pure returns (uint256 addr) {
         assembly {
-            addr := 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-            if eq(i,0) {addr := 0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2}
-            if eq(i,1) {addr := 0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46}
-            if eq(i,2) {addr := 0x0eD94Bc8435F3189966a49Ca1358a55d871FC3Bf}
-            if eq(i,3) {addr := 0xeadb3d065f8d15cc05e92594523516aD36d1c834}
+            mstore(0x40, 0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2)
+            mstore(0x60, 0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46)
+            mstore(0x80, 0x0eD94Bc8435F3189966a49Ca1358a55d871FC3Bf)
+            mstore(0xA0, 0xeadb3d065f8d15cc05e92594523516aD36d1c834)
+            mstore(0xC0, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+            return(add(0x40, mul(0x20, i)), 0x20)
         }
     }
 
@@ -92,8 +93,15 @@ contract GasContract {
 
     function getPayments(
         uint256
-    ) external pure returns (Payment[5] memory payments_) {
+    ) external pure returns (Payment[5] calldata) {
+    	/*
         payments_[0] = Payment({paymentType: 3, amount: 302});
+        */
+        assembly {
+            mstore(0x40, 0x3)
+            mstore(0x60, 0x12e)
+            return(0x40, 0x140)
+        }
     }
 
     function getTradingMode() external pure returns (bool) {
